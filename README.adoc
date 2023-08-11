@@ -5,6 +5,6 @@
 
 toc::[]
 
-Random ideas and discoveries on Coding Standards for C++.
+Random ideas and discoveries on Coding Standards for {cpp}.
 
-* link:Style.adoc[]
+include::Style.adoc[]
