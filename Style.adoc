@@ -1,0 +1,155 @@
+:toc: macro
+:toc-title:
+:toclevels: 99
+# On style
+
+toc::[]
+
+# Fundamental principles
+
+## Consistency: Style MUST be consistent
+
+All classes must follow the same conventions, all functions must follow the same conventions, and so on.
+This is a prerequisite to using any coding standard.
+
+## Standard compatibility: Code MUST be compatible with the standard and Boost libraries
+
+The standard and Boost libraries are one of the most widely distributed and used libraries, and probably some of the best tested ones, too.
+Given that they use the same naming conventions, compatibility with the standard library is sufficient to get compatibility with Boost's.
+
+## Refactoring compatibility: Refactoring MUST NOT require user code changes because of style
+
+Refactoring is a way of doing *the same thing*, better.
+Doing the same thing means using it the same way, from the public interface point of view.
+
+Said otherwise, style alone must not make some refactoring non backward compatible.
+
+# Rules
+
+## Namespaces, structures, classes, enumerations, enumerators, and static variables MUST use the same casing
+
+From a public API point of view, the following snippets are equivalent.
+
+```cpp
+// A. Namespace and static variable
+namespace Foo {
+  static constexpr int Bar;
+}
+
+// B. Struct and static member variable
+struct Foo {
+  static constexpr int Bar;
+};
+
+// C. Class and enumerator
+class Foo {
+public:
+  enum {
+    Bar
+  };
+};
+
+// D. Enumeration and enumerator
+enum class Foo {
+  Bar
+};
+
+// Works both with A, B, C, and D
+constexpr auto FooBar = Foo::Bar;
+```
+
+From the Refactoring Principle, it follows that namespaces, structures, classes, enumerations, enumerators, and static variables must use the same casing, typically `snake_case` or `PascalCase`.
+
+## Free functions, methods, and non static variables MUST use the same casing
+
+Analogously to the previous example, free functions, methods, and non static variables are equivalent.
+
+Let us start with the equivalence of free functions and static methods:
+
+```cpp
+// A. Function
+namespace Foo {
+  int bar(int baz);
+}
+
+// B. Static method
+struct Foo {
+  static int bar(int baz);
+};
+
+// Works both with A and B
+auto foo_bar = Foo::bar(0);
+```
+
+Then, between static and non static methods:
+
+```cpp
+// A. Static method
+struct Foo {
+  static int bar(int baz);
+};
+
+// B. Non static method
+struct Foo {
+  int bar(int baz);
+};
+
+// Works both with A and B
+auto foo_bar = Foo().bar(0);
+```
+
+And finally, between free functions and non static variables:
+
+```cpp
+// A. Function
+int bar(int baz);
+
+// B. Functor
+struct Bar {
+  int operator()(int baz);
+};
+Bar bar;
+
+// C. Lambda
+auto bar = [](int baz) { /* whatever */ };
+
+// Works both with A, B, and C
+auto foo = bar(0);
+```
+
+As a conclusion, free functions, methods, and non static variables must use the same casing, that is, `snake_case` according to next section.
+
+## Functions MUST use `snake_case`
+
+The standard library features services which rely on metaprogramming in order to be compatible with any (possibly user-defined) class.
+The only constraint is to follow standard naming conventions (see Cpp11 Named requirements or Cpp20 Concepts).
+For example, `std::back_inserter` works with classes which provide a method named *precisely* `push_back`.
+It follows from the first two Principles that functions (and equivalent tokens) must use `snake_case`.
+
+Note that the same reasonning *could* apply to classes (and therefore to all the other names), since some nested type names are standardized (like `value_type` or `iterator`).
+However, creating compatibility aliases *without any cost* is straightforward (which is not the case with fonctions, even `inline` ones) and comes with very little noise.
+
+```cpp
+struct Foo {
+
+  struct Bar;
+  template <typename T> struct Baz;
+  
+  using value_type = Bar;
+  using iterator = Baz<value_type>;
+  using const_iterator = Baz<value_type const>;
+  
+  const_iterator begin() const;
+  iterator begin();
+  const_iterator end() const;
+  iterator end();
+  
+};
+```
+
+# Recommendations
+
+## Functions and classes SHOULD use different casings
+
+In the above example, the intent of `begin()` and `end()` is made even clearer by having different conventions for user-focused and standard-focused names.
+Given that user classes are in `PascalCase` in this example, it is indeed absolutely clear that `begin()` is meant to be used with the standard library.
