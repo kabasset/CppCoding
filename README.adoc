@@ -1,0 +1,10 @@
+:toc: macro
+:toc-title:
+:toclevels: 99
+# CppCodingStandard
+
+toc::[]
+
+Random ideas and discoveries on Coding Standards for C++.
+
+* link:Style.adoc[]
