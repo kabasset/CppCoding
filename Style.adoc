@@ -153,3 +153,13 @@ struct Foo {
 
 In the above example, the intent of `begin()` and `end()` is made even clearer by having different conventions for user-focused and standard-focused names.
 Given that user classes are in `PascalCase` in this example, it is indeed absolutely clear that `begin()` is meant to be used with the standard library.
+
+Moreover, having different casings helps readability, e.g.:
+
+```cpp
+Foo foo;
+// reads better than
+foo_type foo;
+```
+
+Consequently, the recommendation is to use `snake_case` for function-equivalent tokens and `PascalCase` for class-equivalent tokens (`camelCase` would be too exotic).
