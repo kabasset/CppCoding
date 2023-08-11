@@ -122,7 +122,7 @@ As a conclusion, free functions, methods, and non static variables must use the 
 ## Functions MUST use `snake_case`
 
 The standard library features services which rely on metaprogramming in order to be compatible with any (possibly user-defined) class.
-The only constraint is to follow standard naming conventions (see Cpp11 Named requirements or Cpp20 Concepts).
+The only constraint is to follow standard naming conventions (see {cpp}11 Named requirements or {cpp}20 Concepts).
 For example, `std::back_inserter` works with classes which provide a method named *precisely* `push_back`.
 It follows from the first two Principles that functions (and equivalent tokens) must use `snake_case`.
 
