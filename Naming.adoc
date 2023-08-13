@@ -36,8 +36,7 @@ By the Consistency Principle, macros must use `MACRO_CASE` and other idenfiers m
 
 From a public API point of view, the following snippets are equivalent.
 
-[,cpp]
----
+```cpp
 // A. Namespace and static variable
 namespace Foo {
   static constexpr int Bar;
@@ -63,7 +62,7 @@ enum class Foo {
 
 // Works both with A, B, C, and D
 constexpr auto FooBar = Foo::Bar;
----
+```
 
 From the Refactoring Principle, it follows that namespaces, structures, classes, enumerations, enumerators, and static variables must use the same naming conventions.
 They can typically use `snake_case` or `PascalCase`.
@@ -74,8 +73,7 @@ Analogously to the previous example, free functions, methods, and non static var
 
 Let us start with the equivalence of free functions and static methods:
 
-[,cpp]
----
+```cpp
 // A. Function
 namespace Foo {
   int bar(int baz);
@@ -88,12 +86,11 @@ struct Foo {
 
 // Works both with A and B
 auto foo_bar = Foo::bar(0);
----
+```
 
 Then, of static and non static methods:
 
-[,cpp]
----
+```cpp
 // A. Static method
 struct Foo {
   static int bar(int baz);
@@ -106,12 +103,11 @@ struct Foo {
 
 // Works both with A and B
 auto foo_bar = Foo().bar(0);
----
+```
 
 And finally, of free functions and non static variables:
 
-[,cpp]
----
+```cpp
 // A. Function
 int bar(int baz);
 
@@ -126,7 +122,7 @@ auto bar = [](int baz) { /* whatever */ };
 
 // Works both with A, B, and C
 auto foo = bar(0);
----
+```
 
 As a conclusion, free functions, methods, and non static variables must use the same naming conventions.
 Their casing must be `snake_case` according to the next section.
@@ -141,8 +137,7 @@ It follows from the first two Principles that functions (and equivalent identifi
 Note that the same reasonning *could* apply to classes (and therefore to all the other names), since some nested type names are standardized (like `value_type` or `iterator`).
 However, creating compatibility aliases *without any cost* is straightforward (which is not the case with fonctions, even `inline` ones) and comes with very little noise.
 
-[,cpp]
----
+```cpp
 struct Foo {
 
   struct Bar;
@@ -158,7 +153,7 @@ struct Foo {
   iterator end();
   
 };
----
+```
 
 == Only the first letter of an acronyms MAY be capitalized
 
@@ -176,12 +171,11 @@ Given that user classes are in `PascalCase` in this example, it is indeed absolu
 
 Moreover, having different casings helps readability, e.g.:
 
-[,cpp]
----
+```cpp
 Foo foo;
 // reads better than
 foo_type foo;
----
+```
 
 Consequently, the recommendation is to use `snake_case` for function-equivalent tokens and `PascalCase` for class-equivalent tokens (`camelCase` would be too exotic).
 
