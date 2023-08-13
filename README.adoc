@@ -1,10 +1,10 @@
 :toc: macro
 :toc-title:
 :toclevels: 99
-# CppCodingStandard
+= CppCodingStandard: Thoughts on Coding Standards for {cpp}
 
-toc::[]
+:leveloffset: +1
 
-Random ideas and discoveries on Coding Standards for {cpp}.
+include::Naming.adoc[]
 
-include::Style.adoc[]
+:leveloffset: -1
