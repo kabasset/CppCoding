@@ -7,17 +7,17 @@ toc::[]
 
 = Fundamental principles
 
-== Consistency: Naming MUST be consistent
+== Consistency Principle: Naming MUST be consistent
 
 All classes must follow the same conventions, all functions must follow the same conventions, and so on.
 This is a prerequisite to using any coding standard.
 
-== Standard Compatibility: Code MUST be compatible with the standard and Boost libraries
+== Standard Compatibility Principle: Code MUST be compatible with the standard and Boost libraries
 
 The standard and Boost libraries are two of the most widely distributed and used libraries, and probably some of the best tested ones, too.
 Given that they use the same naming conventions, compatibility with the standard library is sufficient to get compatibility with Boost's.
 
-== Refactoring Invariance: Refactoring MUST NOT require user code changes because of naming
+== Refactoring Invariance Principle: Refactoring MUST NOT require user code changes because of naming
 
 Refactoring is a way of doing *the same thing*, better.
 Doing the same thing means using it the same way, from the public interface point of view.
@@ -26,13 +26,7 @@ Said otherwise, style alone must not make some refactoring non backward compatib
 
 = Rules
 
-== Preprocessor macros, and only preprocessor macros, MUST use `ALL_CAPS`
-
-Macros are a distinct language within the language, and must be distinguished from plain {cpp} code for safety reasons.
-`ALL_CAPS` case (aka `MACRO_CASE`) is the de facto standard casing in C.
-By the Consistency Principle, macros must use `MACRO_CASE` and other idenfiers must not.
-
-== Namespaces, structures, classes, enumerations, enumerators, and static variables MUST use the same naming conventions
+== Namespaces, structures, classes, enumerations, enumerators, and static variables MUST follow the same naming conventions
 
 From a public API point of view, the following snippets are equivalent.
 
@@ -67,7 +61,7 @@ constexpr auto FooBar = Foo::Bar;
 From the Refactoring Principle, it follows that namespaces, structures, classes, enumerations, enumerators, and static variables must use the same naming conventions.
 They can typically use `snake_case` or `PascalCase`.
 
-== Free functions, methods, and non static variables MUST use the same casing
+== Free functions, methods, and non static variables MUST follow the same conventions
 
 Analogously to the previous example, free functions, methods, and non static variables are equivalent.
 
@@ -125,7 +119,15 @@ auto foo = bar(0);
 ```
 
 As a conclusion, free functions, methods, and non static variables must use the same naming conventions.
-Their casing must be `snake_case` according to the next section.
+Their casing must be `snake_case`, see below.
+
+== Interfaces, abstract classes and concrete classes MUST follow the same conventions
+
+During some backward compatible refactoring, interfaces may be made abstract classes (simply by adding a concrete method), and abstract classes may be made concrete (simply by providing a default implementation for each virtual method).
+
+The Refactoring Invariance Principle implies that the same naming conventions must be applied (e.g. no `I` or `Abstract` prefix or `Interface` suffix).
+
+By contrast, CRTP classes like mixins can rely on a dedicated naming convention, e.g. require a `Mixin` suffix.
 
 == Functions MUST use `snake_case`
 
@@ -155,12 +157,18 @@ struct Foo {
 };
 ```
 
+== Preprocessor macros, and only preprocessor macros, MUST use `ALL_CAPS`
+
+Macros are a distinct language within the language, and must be distinguished from plain {cpp} code for safety reasons.
+`ALL_CAPS` case (aka `MACRO_CASE`) is the de facto standard casing in C.
+By the Consistency Principle, macros must use `ALL_CAPS` case and other idenfiers must not.
+
 == Only the first letter of an acronyms MAY be capitalized
 
 If all the acronym letters were capitalized, pure identifiers made only of acronyms would be undistiguishable from `ALL_CAPS` (which is reserved for preprocessor macros).
 
 Some standards recommend using this convention except for 2-letter acronyms (e.g. `XmlIOStream`).
-However, the Consistency Principle tends to avoid such exceptions (e.g. `XmlIoStream`).
+However, we consider the Consistency Principle discourages the introduction of such exceptions (e.g. `XmlIoStream`).
 
 = Recommendations
 
@@ -177,7 +185,7 @@ Foo foo;
 foo_type foo;
 ```
 
-Consequently, the recommendation is to use `snake_case` for function-equivalent tokens and `PascalCase` for class-equivalent tokens (`camelCase` would be too exotic).
+Consequently, the recommendation is to use `snake_case` for function-equivalent identifiers and `PascalCase` for class-equivalent identifiers (`camelCase` would be too exotic and `ALL_CAPS` is already forbidden).
 
 == Identifiers length SHOULD NOT be constrained
 
