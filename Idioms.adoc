@@ -1,0 +1,57 @@
+:toc: macro
+:toc-title:
+:toclevels: 99
+= Idioms and Patterns
+
+toc::[]
+
+= Idioms
+
+== Move and Forward
+
+Move and forward idioms are generally implemented with standard functions `std::move()` and `std::forward()`.
+Yet, this is not necessary and plain `static_cast`s are enough.
+Functions cost more at compile time and possibly pessimize runtime.
+Macros can simplify coding:
+
+```cpp
+#define MOVE(...) static_cast<std::remove_reference_t<decltype(__VA_ARGS__)>&&>(__VA_ARGS__)
+#define FORWARD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
+```
+
+== Pre-C++20 Concept Detection
+
+```cpp
+TODO
+```
+
+= Patterns
+
+== Mixin
+
+Mixins in C++ can be implemented with CRTP:
+
+```cpp
+template <typename TDerived>
+class SquareMixin {
+public:
+  int square()
+  {
+    auto value = static_cast<TDerived>(*this).value();
+    return value * value;
+  }
+};
+
+class Number : public SquareMixin<Number> { // CRTP
+public:
+  int value()
+  {
+    return m_value;
+  }
+private:
+  int m_value;
+};
+
+auto value = Number{2}.value();
+auto square = Number{2}.square();
+```
