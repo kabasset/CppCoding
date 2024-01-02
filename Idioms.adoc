@@ -5,6 +5,17 @@
 
 toc::[]
 
+= Forewords
+
+1. Many of the proposed idioms rely on macros.
+"Macros are evil!"
+Yes... but they are useful to work around language flaws.
+Given the evolution of the language, some of them might well disapear.
+For example, CRTP is generally replaced with explicit object parameters in C++23,
+hence deprecating the proposed `CRTP_DERIVED` macro.
+2. Some of the idioms depend on previously presented idioms, therefore the order is important.
+3. Many idioms are bound to C++17 or earlier, and would be simpler or useless with more recent versions.
+
 = Move and Forward
 
 Move and forward idioms are generally implemented with standard functions `std::move()` and `std::forward()`.
@@ -40,6 +51,8 @@ constexpr bool is_int_range()
 template <typename T, typename std::enable_if_t<is_int_range<T>()>* = nullptr> // Reduces to void* = nullptr
 void f(T& in);
 ```
+
+Note: With C++20, all of this can be replaced with Concepts.
 
 = Mixin (from above)
 
@@ -97,6 +110,9 @@ Implementation can be simplified with dedicated macros:
 #define CRTP_CONST_DERIVED static_cast<const TDerived&>(*this)
 #define CRTP_DERIVED static_cast<TDerived&>(*this)
 ```
+
+Note: C++23 introduces explicit object parameters, making implementation of mixins more straightforward,
+and eliminating the need for CRTP in most cases.
 
 = Passkey (Restricted Friendship)
 
