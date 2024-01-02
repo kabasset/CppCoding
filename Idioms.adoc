@@ -5,9 +5,7 @@
 
 toc::[]
 
-= Idioms
-
-== Move and Forward
+= Move and Forward
 
 Move and forward idioms are generally implemented with standard functions `std::move()` and `std::forward()`.
 Yet, this is not necessary and plain `static_cast`s are enough.
@@ -19,7 +17,7 @@ Macros can simplify coding:
 #define FORWARD(...) static_cast<decltype(__VA_ARGS__)&&>(__VA_ARGS__)
 ```
 
-== Pre-C++20 Concept Detection
+= Pre-C++20 Member Detection
 
 Until C++20, there are no formal concepts, but it is still possible to `std::enable` functions according to some named requirements.
 For example, let's enable a function `f()` for classes which implement methods `begin()` and `end()` returning an iterator to some `int`-convertible type:
@@ -31,6 +29,7 @@ struct IsIntRange : std::false_type {};
 template <typename T>
 struct IsIntRange<T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())>> :
     std::is_convertible<decltype(*std::declval<T>().begin()), int> {};
+    // or simply std::true_type if detecting return type is not relevant
 
 template <typename T>
 constexpr bool is_int_range()
@@ -42,33 +41,53 @@ template <typename T, typename std::enable_if_t<is_int_range<T>()>* = nullptr> /
 void f(T& in);
 ```
 
-= Patterns
-
-== Mixin
+= Mixin
 
 Mixins in C++ can be implemented with CRTP:
 
 ```cpp
 template <typename TDerived>
-class SquareMixin {
-public:
-  int square()
+struct SizeMixin {
+  std::size_t size() const
   {
-    auto value = static_cast<TDerived>(*this).value();
-    return value * value;
+    return std::distance(
+      static_cast<const TDerived&>(*this).begin(),
+      static_cast<const TDerived&>(*this).end());
   }
 };
 
-class Number : public SquareMixin<Number> { // CRTP
-public:
-  int value()
+template <typename TDerived>
+struct AdditiveMixin {
+  template <typename T>
+  TDerived& operator+(const T& rhs)
   {
-    return m_value;
+    auto& derived = static_cast<TDerived&>(*this);
+    assert(derived.size() == rhs.size());
+    std::transform(derived.begin(), derived.end(), rhs.begin(), [](auto l, auto r) {
+        return l + r;
+      });
+    return derived;
   }
-private:
-  int m_value;
 };
 
-auto value = Number{2}.value();
-auto square = Number{2}.square();
+template <typename TDerived>
+TDerived operator+(const AdditiveMixin<TDerived>& lhs, const T& rhs)
+{
+  TDerived res = static_cast<const TDerived&>(lhs);
+  res += rhs;
+  return res;
+}
+
+template <typename T>
+struct Vector : SizeMixin<Vector<T>>, AdditiveMixin<Vector<T>> { // multiple CRTP
+  const T* begin() const;
+  const T* end() const;
+  T* begin();
+  T* end();
+  ...
+};
+
+Vector<int> u(...);
+Vector<int> v(...);
+auto w = u + v;
 ```
