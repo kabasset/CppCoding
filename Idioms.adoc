@@ -62,7 +62,7 @@ struct AdditiveMixin {
   TDerived& operator+(const T& rhs)
   {
     auto& derived = static_cast<TDerived&>(*this);
-    assert(derived.size() == rhs.size());
+    assert(derived.size() == rhs.size()); // Here provided by SizeMixin via TDerived
     std::transform(derived.begin(), derived.end(), rhs.begin(), [](auto l, auto r) {
         return l + r;
       });
@@ -70,12 +70,11 @@ struct AdditiveMixin {
   }
 };
 
-template <typename TDerived>
-TDerived operator+(const AdditiveMixin<TDerived>& lhs, const T& rhs)
+template <typename T, typename U, typename std::enable_if_t<are_addable<U, V>()>* = nullptr>
+T operator+(T lhs, const U& rhs)
 {
-  TDerived res = static_cast<const TDerived&>(lhs);
-  res += rhs;
-  return res;
+  lhs += rhs;
+  return lhs;
 }
 
 template <typename T>
@@ -92,10 +91,17 @@ Vector<int> v(...);
 auto w = u + v;
 ```
 
+Implementation can be simplified with dedicated macros:
+
+```cpp
+#define CRTP_CONST_DERIVED static_cast<const TDerived&>(*this)
+#define CRTP_DERIVED static_cast<TDerived&>(*this)
+```
+
 = Passkey (Restricted Friendship)
 
 Generally, friendship grants access to all the private members of a class.
-It is possible to select a set of members only, using a dedicated empty class:
+It is possible to select a set of members only, using a dedicated empty class named a passkey:
 
 ```cpp
 class Class {
@@ -125,6 +131,89 @@ struct BarAccessor {
   void bar(Class& c)
   {
     return c.bar({});
+  }
+};
+```
+
+= Template Specialization Macro
+
+TODO
+
+```cpp
+#define FOREACH_SUPPORTED_TYPE(MACRO) \
+  MACRO(bool) \
+  MACRO(int) \
+  MACRO(float)
+```
+
+= Virtual Method Template
+
+It is not possible to declare method templates `virtual`.
+Yet, when the set of acceptable template parameters is finite, then a workaround can be implemented:
+
+```cpp
+struct Interface {
+  virtual void method(bool) = 0;
+  virtual void method(int) = 0;
+  virtual void method(float) = 0;
+};
+
+template <typename TDerived>
+struct InterfaceImpl : Interface {
+
+  void method(bool a) override
+  {
+    return CRTP_DERIVED.method_impl(a);
+  }
+
+  void method(int a) override
+  {
+    return CRTP_DERIVED.method_impl(a);
+  }
+
+  void method(float a) override
+  {
+    return CRTP_DERIVED.method_impl(a);
+  }
+};
+
+struct Implementation : InterfaceImpl<Implementation> {
+
+  template <typename T>
+  void method_impl(T a)
+  {
+    ...
+  }
+};
+```
+
+Given that the contents of `Interface` and `InterfaceImpl` are repetitive, they can be macro-generated:
+
+```cpp
+struct Interface {
+#define DECLARE_METHOD(T) \
+  virtual void method(T) = 0;
+FOREACH_SUPPORTED_TYPE(DECLARE_METHOD)
+#undef DECLARE_METHOD
+};
+
+template <typename TDerived>
+struct InterfaceImpl : Interface {
+#define DEFINE_METHOD(T) \
+  void method(T a) override \
+  { \
+    return CRTP_DERIVED.method_impl(a); \
+  }
+FOREACH_SUPPORTED_TYPE(DEFINE_METHOD)
+#undef DEFINE_METHOD
+};
+
+struct Implementation : InterfaceImpl<Implementation> {
+
+  template <typename T>
+  void method_impl(T a)
+  {
+    ...
   }
 };
 ```
