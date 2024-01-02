@@ -41,7 +41,7 @@ template <typename T, typename std::enable_if_t<is_int_range<T>()>* = nullptr> /
 void f(T& in);
 ```
 
-= Mixin
+= Mixin (from above)
 
 Mixins in C++ can be implemented with CRTP:
 
@@ -90,4 +90,41 @@ struct Vector : SizeMixin<Vector<T>>, AdditiveMixin<Vector<T>> { // multiple CRT
 Vector<int> u(...);
 Vector<int> v(...);
 auto w = u + v;
+```
+
+= Passkey (Restricted Friendship)
+
+Generally, friendship grants access to all the private members of a class.
+It is possible to select a set of members only, using a dedicated empty class:
+
+```cpp
+class Class {
+  class FooKey {
+    friend class FooAccessor;
+    FooKey() {}
+  };
+
+  class BarKey {
+    friend class BarAccessor;
+    BarKey() {}
+  };
+
+  void foo(FooKey);
+
+  void bar(BarKey);
+};
+
+struct FooAccessor {
+  void foo(Class& c)
+  {
+    return c.foo({});
+  }
+};
+
+struct BarAccessor {
+  void bar(Class& c)
+  {
+    return c.bar({});
+  }
+};
 ```
