@@ -1,7 +1,7 @@
 :toc: macro
 :toc-title:
 :toclevels: 99
-= CppCodingStandard: {cpp} Thoughts and Cheatsheets
+= {cpp} Thoughts and Cheatsheets
 
 :leveloffset: +1
 
