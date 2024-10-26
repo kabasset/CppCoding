@@ -11,11 +11,6 @@ This page focuses specifically on casing, prefixing and postfixing.
 The wording is another topic.
 
 In order to decide how to write the various C++ names, we will introduce an equivalence relation based on fundamental principles.
-For simplicity, let us introduce early the different equivalence classes.
-These terms will be used to group the different items being described:
-
-* Type-equivalent;
-* Variable-equivalent.
 
 From the principles and equivalences, we will derive naming rules.
 Rules are not a matter of taste; they are absolute and objective.
@@ -46,9 +41,15 @@ Doing the same thing means using it the same way, from the public interface poin
 
 Said otherwise, style alone must not make some refactoring non backward compatible.
 
+== Human Brain Principle: Exceptions are exceptional
+
+The coding standard is everywhere and should reduce mental workload instead of increasing it.
+Rules will be better applied if they are always applicable.
+Special cases and exceptions must therefore be reduced to what is strictly necessary.
+
 = Rules
 
-== Type-equivalence: Namespaces, types, type aliases, and enumerations MUST follow the same naming conventions
+== Type equivalence: Namespaces, types, type aliases, and enumerations MUST follow the same naming conventions
 
 From a public API point of view, the following snippets are equivalent.
 
@@ -76,16 +77,22 @@ enum class Foo {
   bar
 };
 
-// Works both with A, B, C, and D
-constexpr auto FooBar = Foo::bar;
+// E. Alias and static data member
+template <typename T>
+struct GFoo {
+  static constexpr T bar;
+};
+
+using Foo = GFoo<int>;
+
+// Works equivalently with A, B, C, D, and E
+constexpr auto foo_bar = Foo::bar;
 ```
 
-From the Refactoring Principle, it follows that namespaces, types, and enumerations are equivalent, and must use the same naming conventions.
+From the Refactoring Principle, it follows that namespaces, types, type aliases, and enumerations are equivalent, and MUST use the same naming conventions.
 They can typically be written in `snake_case` or `PascalCase`.
 
-FIXME: aliases
-
-== Variable-equivalence: Enumerators, free functions, methods, parameters, variables, and public data members MUST follow the same conventions
+== Variable equivalence: Enumerators, free functions, methods, variables, and public data members MUST follow the same conventions
 
 The previous example already showed that variables, static data members and enumerators are equivalent.
 Additionally, we will show that free functions, methods and non static data members are equivalent.
@@ -104,7 +111,7 @@ struct Foo {
   static int baz();
 };
 
-// Works both with A and B
+// Works equivalently with A and B
 auto foo_bar = Foo::bar;
 auto foo_baz = Foo::baz();
 ```
@@ -122,11 +129,11 @@ struct Foo {
   int bar();
 };
 
-// Works both with A and B
+// Works equivalently with A and B
 auto foo_bar = Foo().bar();
 ```
 
-And finally, for free functions and variables:
+For free functions and variables:
 
 ```cpp
 // A. Function
@@ -141,14 +148,12 @@ Bar bar;
 // C. Lambda
 auto bar = []() { /* whatever */ };
 
-// Works both with A, B, and C
+// Works equivalently with A, B, and C
 auto foo = bar();
 ```
 
-As a conclusion, numerators, free functions, methods, variables and public data members are equivalent and MUST use the same naming conventions.
+As a conclusion, enumerators, free functions, methods, variables, and public data members are equivalent and MUST use the same naming conventions.
 Their casing MUST be `snake_case`, see below.
-
-FIXME: parameters
 
 == Interfaces, abstract classes and concrete classes MUST follow the same conventions
 
@@ -224,14 +229,15 @@ By the Consistency Principle, macros must use `ALL_CAPS` case and other idenfier
 
 If all the acronym letters were capitalized, pure identifiers made only of acronyms would be undistiguishable from `ALL_CAPS` (which is reserved for preprocessor macros).
 
-Some standards recommend using this convention except for 2-letter acronyms (e.g. `XmlIOStream`).
-However, we consider the Consistency Principle discourages the introduction of such exceptions (e.g. `XmlIoStream`).
+Some standards recommend using this convention except for 2-letter acronyms (e.g. `XmlIOStream`), arguing that readability is improved.
+However, this argument is subjective, and the Consistency and Human Brain Priciples forbid the introduction of such difficult-to-justify exceptions.
 
 = Recommendations
 
-== Functions and classes SHOULD use different casings
+== Functions and classes SHOULD use different casings, thus `snake_case` and `PascalCase`, respectively
 
-In the above example, the intent of `begin()` and `end()` is made even clearer by having different conventions for user-focused and standard-focused names.
+In the above example, the intent of `begin()` and `end()` is made clear by having different conventions for user-focused and standard-focused names:
+indeed, returning `iterator` (and not `Iterator`) conveys the information the method is standard-cmopliant.
 Given that user classes are in `PascalCase` in this example, it is indeed absolutely clear that `begin()` is meant to be used with the standard library.
 
 Moreover, having different casings helps readability, e.g.:
@@ -253,19 +259,50 @@ Moreover, there is no natural bound.
 
 We recommend not limitting identifiers length.
 
-== Concepts SHOULD use the same casing as types
-
 = Proposals
 
-== Use `snake_case` for variable-equivalent items 
+== Prefix concepts with `Any` and use `PascalCase`
 
-== Use `PascalCase` for type-equivalent items
+This is a good way of avoiding name clashes.
+The C++ standard does not have such rule, which leads to weird names like class `std::iterator` and associated concept `std::input_or_output_iterator`.
 
-== Prefix concepts with `Any`
+Another proposal of the standard commitee is to have short concept names, and longer class names (typically prefixed with `default_`),
+assuming that class names should be less frequent in public APIs than concept names.
+This is true for standalone developments but generally incompatible with most dependencies.
+As an illustration, the standard class `std::allocator` should be renamed as `std::default_allocator`
+in order to use `std::allocator` as a concept.
+This is not going to happen.
+Going with classical class names and a simple prefix for associated concepts is more in line with the Consistency and Human Brain Principles.
 
 == Prefix type template parameters with `T`
 
-== Suffix mixins end with `Mixin`
+This is a good way of avoiding name clashes, and a very common one.
+
+== When working with packs, suffix the first parameters with indices and the pack with `s`
+
+This is very readable:
+
+```cpp
+template <typename T0, typename T1, typename... Ts>
+class Foo;
+
+template <typename TArg0, typename... TArgs>
+int bar(TArg0&&, TArgs&&...);
+```
+
+== Suffix mixins with `Mixin`, along with template parameter `TDerived`
+
+Mixins are conceptually different types of items than classical base classes.
+The CRTP is a common yet confusing name; we prefer the words mixin and derived, which are also understood in other languages.
+
+Example:
+
+```cpp
+template <typename T>
+concept AnyFoo { ... };
+
+template <typename T, typename TDerived>
+```
 
 = Summary
 
@@ -278,3 +315,16 @@ Equivalence classes are:
 * Template type parameters;
 * Template non-type parameters;
 * Macros.
+
+Example:
+
+```cpp
+template <typename T>
+concept AnyFoo { /* ... */ };
+
+template <typename T, typename TDerived>
+struct FooMixin { /* ... */ };
+
+template <typename T>
+struct Foo : public FooMixin<T, Foo<T>> { /* ... */ };
+```
