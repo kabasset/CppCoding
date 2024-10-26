@@ -48,100 +48,103 @@ Said otherwise, style alone must not make some refactoring non backward compatib
 
 = Rules
 
-== Namespaces, structures, classes, enumerations, enumerators, and static variables MUST follow the same naming conventions
+== Type-equivalence: Namespaces, types and enumerations MUST follow the same naming conventions
 
 From a public API point of view, the following snippets are equivalent.
 
 ```cpp
 // A. Namespace and static variable
 namespace Foo {
-  static constexpr int Bar;
+  static constexpr int bar;
 }
 
-// B. Struct and static member variable
+// B. Struct and static data member
 struct Foo {
-  static constexpr int Bar;
+  static constexpr int bar;
 };
 
 // C. Class and enumerator
 class Foo {
 public:
   enum {
-    Bar
+    bar
   };
 };
 
 // D. Enumeration and enumerator
 enum class Foo {
-  Bar
+  bar
 };
 
 // Works both with A, B, C, and D
-constexpr auto FooBar = Foo::Bar;
+constexpr auto FooBar = Foo::bar;
 ```
 
-From the Refactoring Principle, it follows that namespaces, structures, classes, enumerations, enumerators, and static variables must use the same naming conventions.
-They can typically use `snake_case` or `PascalCase`.
+From the Refactoring Principle, it follows that namespaces, types and enumerations are equivalent, and must use the same naming conventions.
+They can typically be written in `snake_case` or `PascalCase`.
 
-== Free functions, methods, and non static variables MUST follow the same conventions
+== Variable-equivalence: Enumerators, free functions, methods, variables and public data members MUST follow the same conventions
 
-Analogously to the previous example, free functions, methods, and non static variables are equivalent.
-
-Let us start with the equivalence of free functions and static methods:
+The previous example already showed that variables, static data members and enumerators are equivalent.
+Additionally, we will show that free functions, methods and non static data members are equivalent.
+Let us start with the equivalence of free functions and static methods, as well as of static and non-static public data members:
 
 ```cpp
 // A. Function
 namespace Foo {
-  int bar(int baz);
+  static constexpr int bar;
+  int baz();
 }
 
 // B. Static method
 struct Foo {
-  static int bar(int baz);
+  static constexpr int bar;
+  static int baz();
 };
 
 // Works both with A and B
-auto foo_bar = Foo::bar(0);
+auto foo_bar = Foo::bar;
+auto foo_baz = Foo::baz();
 ```
 
-Then, of static and non static methods:
+Then, for static and non static methods:
 
 ```cpp
 // A. Static method
 struct Foo {
-  static int bar(int baz);
+  static int bar();
 };
 
 // B. Non static method
 struct Foo {
-  int bar(int baz);
+  int bar();
 };
 
 // Works both with A and B
-auto foo_bar = Foo().bar(0);
+auto foo_bar = Foo().bar();
 ```
 
-And finally, of free functions and non static variables:
+And finally, for free functions and variables:
 
 ```cpp
 // A. Function
-int bar(int baz);
+int bar();
 
 // B. Functor
 struct Bar {
-  int operator()(int baz);
+  int operator()();
 };
 Bar bar;
 
 // C. Lambda
-auto bar = [](int baz) { /* whatever */ };
+auto bar = []() { /* whatever */ };
 
 // Works both with A, B, and C
-auto foo = bar(0);
+auto foo = bar();
 ```
 
-As a conclusion, free functions, methods, and non static variables must use the same naming conventions.
-Their casing must be `snake_case`, see below.
+As a conclusion, numerators, free functions, methods, variables and public data members are equivalent and MUST use the same naming conventions.
+Their casing MUST be `snake_case`, see below.
 
 == Interfaces, abstract classes and concrete classes MUST follow the same conventions
 
@@ -151,7 +154,7 @@ The Refactoring Invariance Principle implies that the same naming conventions mu
 
 By contrast, CRTP classes like mixins can rely on a dedicated naming convention, e.g. require a `Mixin` suffix.
 
-== Functions MUST use `snake_case`
+== Variable-equivalent items MUST use `snake_case`
 
 The standard library features services which rely on metaprogramming in order to be compatible with any (possibly user-defined) class.
 The only constraint is to follow standard naming conventions (see {cpp}11 Named requirements or {cpp}20 Concepts).
