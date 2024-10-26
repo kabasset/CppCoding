@@ -48,7 +48,7 @@ Said otherwise, style alone must not make some refactoring non backward compatib
 
 = Rules
 
-== Type-equivalence: Namespaces, types and enumerations MUST follow the same naming conventions
+== Type-equivalence: Namespaces, types, type aliases, and enumerations MUST follow the same naming conventions
 
 From a public API point of view, the following snippets are equivalent.
 
@@ -80,10 +80,12 @@ enum class Foo {
 constexpr auto FooBar = Foo::bar;
 ```
 
-From the Refactoring Principle, it follows that namespaces, types and enumerations are equivalent, and must use the same naming conventions.
+From the Refactoring Principle, it follows that namespaces, types, and enumerations are equivalent, and must use the same naming conventions.
 They can typically be written in `snake_case` or `PascalCase`.
 
-== Variable-equivalence: Enumerators, free functions, methods, variables and public data members MUST follow the same conventions
+FIXME: aliases
+
+== Variable-equivalence: Enumerators, free functions, methods, parameters, variables, and public data members MUST follow the same conventions
 
 The previous example already showed that variables, static data members and enumerators are equivalent.
 Additionally, we will show that free functions, methods and non static data members are equivalent.
@@ -146,6 +148,8 @@ auto foo = bar();
 As a conclusion, numerators, free functions, methods, variables and public data members are equivalent and MUST use the same naming conventions.
 Their casing MUST be `snake_case`, see below.
 
+FIXME: parameters
+
 == Interfaces, abstract classes and concrete classes MUST follow the same conventions
 
 During some backward compatible refactoring, interfaces may be made abstract classes (simply by adding a concrete method), and abstract classes may be made concrete (simply by providing a default implementation for each virtual method).
@@ -180,6 +184,34 @@ struct Foo {
   iterator end();
   
 };
+```
+
+== Templates MUST follow their specialization naming conventions
+
+Often, template parameters can be omitted, such that class templates or function templates are equivalent to classes or functions.
+
+```cpp
+// A. Class and method templates
+template <typename T1>
+struct Foo {
+
+  Foo(T);
+
+  template <typename TArg>
+  int baz(TArg)
+};
+
+// B. Class and method
+struct Foo {
+
+  Foo(int);
+
+  int baz(int);
+};
+
+// Works both with A and B
+auto foo = Foo(0);
+auto foo_baz = foo.baz(0);
 ```
 
 == Preprocessor macros, and only preprocessor macros, MUST use `ALL_CAPS`
@@ -236,3 +268,13 @@ We recommend not limitting identifiers length.
 == Suffix mixins end with `Mixin`
 
 = Summary
+
+Equivalence classes are:
+
+* Concepts;
+* Type-equivalent items: Namespaces, types, template types, type aliases, template type aliases, and enumerations;
+* Nested type aliases;
+* Variable-equivalent items: Enumerators, free functions, methods, parameters, variables, and public data members;
+* Template type parameters;
+* Template non-type parameters;
+* Macros.
