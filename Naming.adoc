@@ -5,6 +5,25 @@
 
 toc::[]
 
+= Introduction
+
+In order to decide how to write the various C++ names, we will introduce an equivalence relation based on fundamental principles.
+For simplicity, let us introduce early the different equivalence classes.
+These terms will be used to group the different items being described:
+
+* Concept-equivalent;
+* Type-equivalent;
+* Variable-equivalent;
+* Macro-equivalent.
+
+From the principles and equivalences, we will derive naming rules.
+Whenever possible, the rules MUST always be followed.
+
+Later, recommendations are given, motivated by some sense of elegance but not by principles.
+In case no other constraints exist, the recommendations SHOULD be followed.
+
+Finally, guidelines are simply proposed.
+
 = Fundamental principles
 
 == Consistency Principle: Naming MUST be consistent
@@ -196,3 +215,18 @@ Moreover, there is no natural bound.
 
 We recommend not limitting identifiers length.
 
+== Concepts SHOULD use the same casing as types
+
+= Proposals
+
+== Use `snake_case` for variable-equivalent items 
+
+== Use `PascalCase` for type-equivalent items
+
+== Prefix concepts with `Any`
+
+== Prefix type template parameters with `T`
+
+== Suffix mixins end with `Mixin`
+
+= Summary
