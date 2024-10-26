@@ -7,22 +7,25 @@ toc::[]
 
 = Introduction
 
+This page focuses specifically on casing, prefixing and postfixing.
+The wording is another topic.
+
 In order to decide how to write the various C++ names, we will introduce an equivalence relation based on fundamental principles.
 For simplicity, let us introduce early the different equivalence classes.
 These terms will be used to group the different items being described:
 
-* Concept-equivalent;
 * Type-equivalent;
-* Variable-equivalent;
-* Macro-equivalent.
+* Variable-equivalent.
 
 From the principles and equivalences, we will derive naming rules.
-Whenever possible, the rules MUST always be followed.
+Rules are not a matter of taste; they are absolute and objective.
+Whenever possible, the rules MUST be followed.
 
 Later, recommendations are given, motivated by some sense of elegance but not by principles.
 In case no other constraints exist, the recommendations SHOULD be followed.
 
-Finally, guidelines are simply proposed.
+Finally, additional guidelines are simply proposed.
+They are useful when open questions remain.
 
 = Fundamental principles
 
