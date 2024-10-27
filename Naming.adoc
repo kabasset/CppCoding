@@ -237,7 +237,7 @@ However, this argument is subjective, and the Consistency and Human Brain Pricip
 == Functions and classes SHOULD use different casings, thus `snake_case` and `PascalCase`, respectively
 
 In the above example, the intent of `begin()` and `end()` is made clear by having different conventions for user-focused and standard-focused names:
-indeed, returning `iterator` (and not `Iterator`) conveys the information the method is standard-cmopliant.
+indeed, returning `iterator` (and not `Iterator`) conveys the information the method is standard-compliant.
 Given that user classes are in `PascalCase` in this example, it is indeed absolutely clear that `begin()` is meant to be used with the standard library.
 
 Moreover, having different casings helps readability, e.g.:
@@ -311,20 +311,50 @@ Equivalence classes are:
 * Concepts;
 * Type-equivalent items: Namespaces, types, template types, type aliases, template type aliases, and enumerations;
 * Nested type aliases;
-* Variable-equivalent items: Enumerators, free functions, methods, parameters, variables, and public data members;
-* Template type parameters;
-* Template non-type parameters;
+* Variable-equivalent items: Enumerators, free functions, methods, variables, and public data members;
+* Type template parameters;
+* Non-type template parameters;
 * Macros.
 
 Example:
 
 ```cpp
+#ifndef QUX_FOO_INCLUDED
+#define QUX_FOO_INCLUDED
+
+namespace Qux {
+
 template <typename T>
-concept AnyFoo { /* ... */ };
+concept AnyFoo = requires(T foo) {
+  {foo.baz(0)} -> std::convertible_to<typename T::value_type>;
+};
 
 template <typename T, typename TDerived>
-struct FooMixin { /* ... */ };
+struct FooMixin {
+
+  using value_type = T;
+
+  T baz(T p)
+  {
+    return TDerived::bar + p;
+  }
+};
 
 template <typename T>
-struct Foo : public FooMixin<T, Foo<T>> { /* ... */ };
+struct GFoo : public FooMixin<T, GFoo<T>> {
+
+  static constexpr int bar = 42;
+};
+
+using Foo = GFoo<int>;
+
+template <auto I, AnyFoo TFoo>
+typename TFoo::value_type baz(TFoo foo)
+{
+  return foo.baz(I);
+}
+
+} // namespace Qux
+
+#endif
 ```
