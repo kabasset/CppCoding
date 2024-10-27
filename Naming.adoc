@@ -1,14 +1,14 @@
 :toc: macro
 :toc-title:
 :toclevels: 99
-= On Naming
+= On Naming Style
 
 toc::[]
 
 = Introduction
 
-This page focuses specifically on casing, prefixing and postfixing.
-The wording is another topic.
+This page focuses on namig *style*, i.e. casing, prefixing and suffixing.
+The wording is another, out-of-scope topic.
 
 In order to decide how to write the various C++ names, we will introduce an equivalence relation based on fundamental principles.
 
@@ -234,7 +234,7 @@ However, this argument is subjective, and the Consistency and Human Brain Pricip
 
 = Recommendations
 
-== Functions and classes SHOULD use different casings, thus `snake_case` and `PascalCase`, respectively
+== Functions and classes SHOULD use different casings
 
 In the above example, the intent of `begin()` and `end()` is made clear by having different conventions for user-focused and standard-focused names:
 indeed, returning `iterator` (and not `Iterator`) conveys the information the method is standard-compliant.
@@ -248,11 +248,13 @@ Foo foo;
 foo_type foo;
 ```
 
-Consequently, the recommendation is to use `snake_case` for function-equivalent identifiers and `PascalCase` for class-equivalent identifiers (`camelCase` would be too exotic and `ALL_CAPS` is already forbidden).
+Consequently, our recommendation is to use `snake_case` for function-equivalent identifiers and `PascalCase` for type-equivalent identifiers (`camelCase` would be too exotic and `ALL_CAPS` is already forbidden).
+There are other proposals for type names.
+To our knowledge, most if not all of them propose to use capitals, like Stroustrup's `Capitalized_snake_case`.
 
-== Template parameters should use different conventions than identifiers
+== Template parameters SHOULD use different conventions than identifiers
 
-Template parameters are not identifiers: they are metaprogramming entities which do not belong the API.
+Template parameters are not identifiers: they are metaprogramming entities which do not belong to the API.
 We therefore recommend that they SHOULD use different naming conventions as identifiers.
 
 == Name length SHOULD NOT be constrained
@@ -279,13 +281,17 @@ in order to use `std::allocator` as a concept.
 This is not going to happen.
 Going with classical class names and a simple prefix for associated concepts is more in line with the Consistency and Human Brain Principles.
 
-== Prefix type template parameters with `T`
+== Reserve prefix `T` for type template parameters
 
 This is a good way of distinguishing them from type identifiers, and a very common one.
 
-== Use `PascalCase` for non-type template parameters
+For example, `T` and `TTuple` would always denote type template parameters.
+
+== Reserve `PascalCase` non-type names for non-type template parameters
 
 This is a good way of distinguishing them from variable identifiers, and a very common one.
+
+For example, integers `I` and `N` would always denote integral template parameter.
 
 == When working with packs, suffix the first parameters with indices and the pack with `s`
 
@@ -296,7 +302,10 @@ template <typename T0, typename T1, typename... Ts>
 class Foo;
 
 template <typename TArg0, typename... TArgs>
-int bar(TArg0&&, TArgs&&...);
+int baz(TArg0&&, TArgs&&...);
+
+template <std::integral auto... Is>
+int baz();
 ```
 
 == Suffix mixins with `Mixin`, along with template parameter `TDerived`
@@ -315,21 +324,41 @@ template <typename T, typename TDerived>
 
 = Summary
 
+== Equivalence classes
+
 Equivalence classes are:
 
 * Concepts;
-* Type-equivalent items: Namespaces, types, template types, type aliases, template type aliases, and enumerations;
+* Type-equivalent items: Namespaces, types, type templates, type aliases, type template aliases, and enumerations;
 * Nested type aliases;
-* Variable-equivalent items: Enumerators, free functions, methods, variables, and public data members;
+* Variable-equivalent items: Enumerators, free functions, free function templates, methods, method templates, variables, variable templates, and public data members;
 * Type template parameters;
 * Non-type template parameters;
 * Macros.
 
-Example:
+For each of them, here is the proposed naming convention:
+
+|===
+| Equivalence class | Rule | Recommendation | Proposal
+
+| Concepts | | | `PascalCase` prefixed with `Any`
+| Types | | Not `snake_case` | `PascalCase` not prefixed with `T`
+| Nested type aliases | `snake_case` | |
+| Variables | `snake_case` | |
+| Type template parameters | | Different from identifiers | `PascalCase` prefixed with `T`
+| Non-type template parameters | | Different from identifiers | `PascalCase` not prefixed with `T`
+| Macros | `ALL_CAPS` | | |
+|===
+
+Specific conventions may apply to subgroups, like mixins among types.
+
+== Example
+
+The following example demonstrates most of the discussed items:
 
 ```cpp
-#ifndef QUX_FOO_INCLUDED
-#define QUX_FOO_INCLUDED
+#ifndef QUX_FOO_H_INCLUDED
+#define QUX_FOO_H_INCLUDED
 
 namespace Qux {
 
@@ -357,10 +386,10 @@ struct GFoo : public FooMixin<T, GFoo<T>> {
 
 using Foo = GFoo<int>;
 
-template <auto I, AnyFoo TFoo>
+template <auto P, AnyFoo TFoo>
 typename TFoo::value_type baz(TFoo foo)
 {
-  return foo.baz(I);
+  return foo.baz(P);
 }
 
 } // namespace Qux
