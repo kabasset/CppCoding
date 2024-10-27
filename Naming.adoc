@@ -41,7 +41,7 @@ Doing the same thing means using it the same way, from the public interface poin
 
 Said otherwise, style alone must not make some refactoring non backward compatible.
 
-== Human Brain Principle: Exceptions are exceptional
+== Human Brain Principle: Exceptions MUST be exceptional
 
 The coding standard is everywhere and should reduce mental workload instead of increasing it.
 Rules will be better applied if they are always applicable.
@@ -197,7 +197,7 @@ Often, template parameters can be omitted, such that class templates or function
 
 ```cpp
 // A. Class and method templates
-template <typename T1>
+template <typename T>
 struct Foo {
 
   Foo(T);
@@ -250,10 +250,15 @@ foo_type foo;
 
 Consequently, the recommendation is to use `snake_case` for function-equivalent identifiers and `PascalCase` for class-equivalent identifiers (`camelCase` would be too exotic and `ALL_CAPS` is already forbidden).
 
-== Identifiers length SHOULD NOT be constrained
+== Template parameters should use different conventions than identifiers
+
+Template parameters are not identifiers: they are metaprogramming entities which do not belong the API.
+We therefore recommend that they SHOULD use different naming conventions as identifiers.
+
+== Name length SHOULD NOT be constrained
 
 Some short identifiers are standard (e.g. `at` or `j`).
-Potentially too long identifiers would be a symptom of something else going wrong (e.g. violated Single Responsibility Principle).
+Potentially too long names would be a symptom of something else going wrong (e.g. violated Single Responsibility Principle).
 Naming conventions do not seem to be the right place to detect such issues.
 Moreover, there is no natural bound.
 
@@ -276,7 +281,11 @@ Going with classical class names and a simple prefix for associated concepts is 
 
 == Prefix type template parameters with `T`
 
-This is a good way of avoiding name clashes, and a very common one.
+This is a good way of distinguishing them from type identifiers, and a very common one.
+
+== Use `PascalCase` for non-type template parameters
+
+This is a good way of distinguishing them from variable identifiers, and a very common one.
 
 == When working with packs, suffix the first parameters with indices and the pack with `s`
 
